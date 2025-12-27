@@ -37,4 +37,7 @@ def run_command(command, cwd='.', env=None):
 
 
 def find_project(project):
-    return pathlib.Path(__file__).parent / project.replace('.', '/')
+    # return pathlib.Path(__file__).parent / project.replace('.', '/')
+    path, name = project
+    path = pathlib.Path(__file__).parent / path
+    return path, name
