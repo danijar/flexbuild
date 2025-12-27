@@ -1,0 +1,20 @@
+[project]
+name = "tinybuild"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 79
+indent-width = 4
+# fix = true
+# show-fixes = true
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "single"
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "ruff",
+]

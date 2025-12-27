@@ -1,0 +1,18 @@
+# Python
+*.egg-info
+*.py[cod]
+__pycache__/
+dist/
+
+# Tools
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Mac
+.DS_Store
+
+# Typos
+[';:]
+\[
+\]
