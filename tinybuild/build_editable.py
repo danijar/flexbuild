@@ -9,15 +9,15 @@ def build_editable(
 ):
     proj = project.Project('.')
     path = str((proj.src / '__init__.py').as_posix())
-    finder = make_finder(proj.fullname, path)
+    finder = make_finder(proj.name, path)
     with wheel.Wheel(wheel_directory, proj) as whl:
-        ident = proj.fullname.replace('.', '_')
+        ident = proj.name.replace('.', '_')
         whl.add(f'_editable_impl_{ident}.pth', finder)
     return whl.name
 
 
-def make_finder(fullname, path):
-    finder = repr(EDITABLE_FINDER.format(fullname=fullname, path=path))
+def make_finder(name, path):
+    finder = repr(EDITABLE_FINDER.format(name=name, path=path))
     finder = f'import sys; exec({finder})'
     finder = finder.encode('utf-8')
     return finder
@@ -30,12 +30,12 @@ import sys
 class EditableFinder(importlib.abc.MetaPathFinder):
 
     def find_spec(self, fullname, path, target=None):
-        if fullname == '{fullname}':
+        if fullname == '{name}':
             import os, importlib.util
             locations = [os.path.dirname('{path}')]
             return importlib.util.spec_from_file_location(
                 fullname, '{path}', submodule_search_locations=locations)
-        if '{fullname}'.startswith(fullname + '.'):  # Namespace
+        if '{name}'.startswith(fullname + '.'):  # Namespace
             import importlib.machinery
             spec = importlib.machinery.ModuleSpec(fullname, None)
             spec.submodule_search_locations = []

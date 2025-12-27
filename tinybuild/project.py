@@ -32,8 +32,12 @@ class Project:
         return stem
 
     @property
-    def fullname(self):
+    def name(self):
         return self._pyproject['project']['name']
+
+    @property
+    def scope(self):
+        return self._pyproject['project']['name'].replace('.', '/')
 
     @property
     def src(self):
