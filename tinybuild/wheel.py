@@ -3,7 +3,7 @@ import hashlib
 import pathlib
 import zipfile
 
-from . import project as plib
+from . import helpers
 
 
 class Wheel:
@@ -42,14 +42,14 @@ class Wheel:
 
     def _finish(self):
         distinfo = f'{self.stem}.dist-info'
-        self.add(f'{distinfo}/METADATA', plib.format_key_value(self.meta))
+        self.add(f'{distinfo}/METADATA', self.meta)
         wheelinfo = [
             ('Wheel-Version', '1.0'),
             ('Generator', 'tinybuild 0.1.0'),
             ('Root-Is-Purelib', 'true'),
             ('Tag', 'py3-none-any'),
         ]
-        self.add(f'{distinfo}/WHEEL', plib.format_key_value(wheelinfo))
+        self.add(f'{distinfo}/WHEEL', helpers.format_key_value(wheelinfo))
         self.records.append('RECORD,,\n')
         self.f.writestr(f'{distinfo}/RECORD', ''.join(self.records))
 

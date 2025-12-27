@@ -18,6 +18,7 @@ quote-style = "single"
 
 [dependency-groups]
 dev = [
+  "ipdb",
   "neovim",
   "pytest",
   "ruff",

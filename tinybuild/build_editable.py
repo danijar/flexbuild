@@ -7,7 +7,7 @@ def build_editable(
     config_settings=None,
     metadata_directory=None,
 ):
-    proj = project.Project(root='.')
+    proj = project.Project('.')
     path = str((proj.src / '__init__.py').as_posix())
     finder = make_finder(proj.fullname, path)
     with wheel.Wheel(wheel_directory, proj) as whl:
@@ -31,7 +31,7 @@ class EditableFinder(importlib.abc.MetaPathFinder):
 
     def find_spec(self, fullname, path, target=None):
         if fullname == '{fullname}':
-            import os, importlib
+            import os, importlib.util
             locations = [os.path.dirname('{path}')]
             return importlib.util.spec_from_file_location(
                 fullname, '{path}', submodule_search_locations=locations)

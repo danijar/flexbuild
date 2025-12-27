@@ -3,6 +3,7 @@
 *.py[cod]
 __pycache__/
 dist/
+build/
 
 # Tools
 .pytest_cache/

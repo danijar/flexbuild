@@ -83,11 +83,13 @@ def read_project(project_folder):
 def validate_name(name, module_folder, root_folder):
     if not re.match(r'[A-Za-z0-9_.]+', name):
         raise ValueError(f'Invalid chars in project name: {name}')
-    if name.rsplit('.', 1)[-1] != module_folder.name:
-        raise ValueError(
-            f'Last segment of project name ({name}) must equal module '
-            f'folder ({module_folder.name})'
-        )
+
+    # if name.rsplit('.', 1)[-1] != module_folder.name:
+    #     raise ValueError(
+    #         f'Last segment of project name ({name}) must equal module '
+    #         f'folder ({module_folder.name})'
+    #     )
+
     if root_folder:
         scope = str(module_folder.relative_to(root_folder)).replace('/', '.')
         if scope != name:
