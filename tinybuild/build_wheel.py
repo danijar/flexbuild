@@ -10,7 +10,7 @@ def build_wheel(
 ):
     proj = project.Project(root='.')
     with wheel.Wheel(wheel_directory, proj) as whl:
-        for path in proj.root.rglob('*.py'):
+        for path in proj.src.rglob('*.py'):
             relative = path.relative_to(proj.root)
             if include.should_exclude(relative):
                 continue
