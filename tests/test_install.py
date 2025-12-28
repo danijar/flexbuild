@@ -8,9 +8,10 @@ from . import utils
 REPO = pathlib.Path(__file__).parent.parent
 ROOT = pathlib.Path(__file__).parent
 PROJECTS = [
-    ('project_basic', 'project_basic'),
-    ('project_namespace', 'virtual1.virtual2.project_namespace'),
-    # ('namespace1/namespace2/project', 'namespace1.namespace2.project'),
+    ('example_basic', 'project'),
+    ('example_namespace', 'namespace1.namespace2.project'),
+    ('example_monorepo/namespace1/project1', 'namespace1.project1'),
+    # ('example_monorepo/namespace1/project2', 'namespace1.project2'),
 ]
 
 

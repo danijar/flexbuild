@@ -5,7 +5,7 @@ requires-python = ">=3.11"
 dependencies = []
 
 [tool.uv.sources]
-tinybuild = { path = "../../../..", editable = true }
+tinybuild = { path = "../..", editable = true }
 
 [build-system]
 requires = ["tinybuild"]

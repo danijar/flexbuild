@@ -119,9 +119,8 @@ def create_metadata(pyproject):
 
 def find_root(folder):
     while True:
-        pyroot = folder / 'pyroot.toml'
-        if pyroot.exists():
-            return pyroot
+        if (folder / 'pyroot.toml').exists():
+            return folder
         if folder.parent == folder:  # Filesystem root
             break
         folder = folder.parent

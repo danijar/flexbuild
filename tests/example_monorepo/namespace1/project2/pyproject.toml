@@ -1,0 +1,13 @@
+[project]
+name = "namespace1.project2"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ['namespace1.project1']
+
+[tool.uv.sources]
+tinybuild = { path = "../../../..", editable = true }
+namespace1-project1 = { path = "../project2", editable = true }
+
+[build-system]
+requires = ["tinybuild"]
+build-backend = "tinybuild"
