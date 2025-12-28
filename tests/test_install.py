@@ -14,7 +14,7 @@ ROOT = pathlib.Path(__file__).parent
 class Project:
     name: str
     path: str
-    deps: list = None
+    deps: list
 
 
 PROJECTS = [
@@ -81,6 +81,11 @@ class TestInstall:
 
         system = utils.System(cwd=tmpdir)
         system('uv venv')
+
+        with pytest.raises(RuntimeError) as e:
+            system(f'uv run python -c "import {project.name}"')
+        assert 'ModuleNotFoundError' in e.value.args[0]
+
         system(f'uv pip install {" ".join(packages)} --no-build-isolation')
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run python -c "{code}"') == '42\n'
@@ -107,6 +112,11 @@ class TestInstall:
 
         system = utils.System(cwd=tmpdir)
         system('uv venv')
+
+        with pytest.raises(RuntimeError) as e:
+            system(f'uv run python -c "import {project.name}"')
+        assert 'ModuleNotFoundError' in e.value.args[0]
+
         system(f'uv pip install {" ".join(packages)} --no-build-isolation')
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run python -c "{code}"') == '42\n'
