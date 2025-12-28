@@ -7,7 +7,6 @@ from . import helpers
 
 # TODO: Look for .gitignore for excludes
 # TODO: Look for pyproject.toml includes/excludes
-# TODO: Look for pyproject.toml for source root
 
 # TODO: Support entry points
 # TODO: Support dependency extras
@@ -22,7 +21,9 @@ class Project:
 
     def __init__(self, project_folder):
         self._project_folder = pathlib.Path(project_folder)
-        self._pyproject, self._module_folder = read_project(project_folder)
+        self._pyproject, self._module_folder, self._root_folder = (
+            read_project(project_folder)
+        )
         self._metadata = create_metadata(self._pyproject)
 
     @property
@@ -41,12 +42,16 @@ class Project:
         return self._pyproject['project']['name'].replace('.', '/')
 
     @property
-    def root(self):
+    def project_folder(self):
         return self._project_folder
 
     @property
-    def src(self):
+    def module_folder(self):
         return self._module_folder
+
+    @property
+    def root_folder(self):
+        return self._root_folder
 
     @property
     def metadata(self):
@@ -60,8 +65,6 @@ def read_project(project_folder):
     root_folder = find_root(project_folder)
     if root_folder:
         pyroot = tomllib.loads((root_folder / 'pyroot.toml').read_text())
-        # TODO
-        # validate_pyroot(pyroot)
         pyproject['build-system'] = helpers.merge_dicts(
             pyproject.get('build-system', {}),
             pyroot.get('build-system', {}),
@@ -78,26 +81,12 @@ def read_project(project_folder):
     pyproject['project'].setdefault('version', '0.0.0')
     validate_name(pyproject['project']['name'], module_folder, root_folder)
 
-    return pyproject, module_folder
-
-
-# def validate_pyroot(pyroot):
-#     if 'name' in pyroot.get('project', {}):
-#         raise ValueError(
-#             'Cannot specify default project name in pyroot.toml '
-#             'because project names must be unique'
-#         )
+    return pyproject, module_folder, root_folder
 
 
 def validate_name(name, module_folder, root_folder):
     if not re.match(r'[A-Za-z0-9_.]+', name):
         raise ValueError(f'Invalid chars in project name: {name}')
-
-    # if name.rsplit('.', 1)[-1] != module_folder.name:
-    #     raise ValueError(
-    #         f'Last segment of project name ({name}) must equal module '
-    #         f'folder ({module_folder.name})'
-    #     )
 
     if root_folder:
         scope = str(module_folder.relative_to(root_folder)).replace('/', '.')

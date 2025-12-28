@@ -8,7 +8,7 @@ def build_editable(
     metadata_directory=None,
 ):
     proj = project.Project('.')
-    path = str((proj.src / '__init__.py').as_posix())
+    path = str((proj.module_folder / '__init__.py').as_posix())
     finder = make_finder(proj.name, path)
     with wheel.Wheel(wheel_directory, proj) as whl:
         ident = proj.name.replace('.', '_')
