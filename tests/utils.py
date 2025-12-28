@@ -5,7 +5,6 @@ import subprocess
 
 
 class System:
-
     def __init__(self, cwd='.', env=None):
         self.cwd = pathlib.Path(cwd).resolve()
         assert self.cwd.is_dir()
@@ -28,10 +27,10 @@ def run_command(command, cwd='.', env=None):
     )
     if result.returncode != 0:
         raise RuntimeError(
-            f"Command failed with return code {result.returncode}.\n"
-            f"--- COMMAND ---\n{command}\n"
-            f"--- STDERR ---\n{result.stderr}\n"
-            f"--- STDOUT ---\n{result.stdout}"
+            f'Command failed with return code {result.returncode}.\n'
+            f'--- COMMAND ---\n{command}\n'
+            f'--- STDERR ---\n{result.stderr}\n'
+            f'--- STDOUT ---\n{result.stdout}'
         )
     return result.stdout
 

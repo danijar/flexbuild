@@ -14,6 +14,6 @@ def build_wheel(
             relative = path.relative_to(proj.src)
             if include.should_exclude(relative):
                 continue
-            print(f"DEBUG: Adding to wheel: {f'{proj.scope}/{relative}'}")
+            print(f'DEBUG: Adding to wheel: {f"{proj.scope}/{relative}"}')
             whl.add(f'{proj.scope}/{relative}', path.read_bytes())
     return whl.name

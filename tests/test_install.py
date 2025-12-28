@@ -1,3 +1,4 @@
+import dataclasses
 import pathlib
 
 import pytest
@@ -6,49 +7,82 @@ from . import utils
 
 
 REPO = pathlib.Path(__file__).parent.parent
+ROOT = pathlib.Path(__file__).parent
+
+
+@dataclasses.dataclass
+class Project:
+    name: str
+    path: str
+    deps: list = None
+
 
 PROJECTS = [
-    ('example_basic', 'project'),
-    ('example_namespace', 'namespace1.namespace2.project'),
-    ('example_monorepo/namespace1/project1', 'namespace1.project1'),
-    # ('example_monorepo/namespace1/project2', 'namespace1.project2'),
+    Project(
+        name='project',
+        path='example_basic',
+        deps=[],
+    ),
+    Project(
+        name='namespace1.namespace2.project',
+        path='example_namespace',
+        deps=[],
+    ),
+    Project(
+        name='namespace1.project1',
+        path='example_monorepo/namespace1/project1',
+        deps=[],
+    ),
+    Project(
+        name='namespace1.project2',
+        path='example_monorepo/namespace1/project2',
+        deps=['example_monorepo/namespace1/project1'],
+    ),
 ]
 
 
 class TestInstall:
-
     @pytest.mark.parametrize('project', PROJECTS)
     def test_sync_editable(self, project):
-        root, name = utils.find_project(project)
-        system = utils.System(cwd=root)
+        path = ROOT / project.path
+        system = utils.System(cwd=path)
         system('rm -rf .venv')
         system('uv sync --editable')
-        code = f'import {name}; print({name}.foo())'
+        code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run python -c "{code}"') == '42\n'
 
     @pytest.mark.parametrize('project', PROJECTS)
     def test_sync_no_editable(self, project):
-        root, name = utils.find_project(project)
-        system = utils.System(cwd=root)
+        path = ROOT / project.path
+        system = utils.System(cwd=path)
         system('rm -rf .venv')
         system('uv sync --no-editable')
-        code = f'import {name}; print({name}.foo())'
+        code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run python -c "{code}"') == '42\n'
 
     @pytest.mark.parametrize('project', PROJECTS)
     def test_build_wheel(self, tmpdir, project):
-        root, name = utils.find_project(project)
-        system = utils.System(cwd=root)
-        system('rm -rf .venv')
-        system('uv sync')
-        system('uv build')
-        stem = f'{name.replace(".", "_")}-0.1.0'
-        wheel = root / f'dist/{stem}-py3-none-any.whl'
+        packages = []
+
+        for folder in [project.path, *(project.deps or [])]:
+            path = ROOT / folder
+            system = utils.System(cwd=path)
+            system('rm -rf .venv')
+            system('rm -rf dist')
+            system('uv sync')
+            system('uv build')
+            wheels = list((path / 'dist').glob('*.whl'))
+            assert len(wheels) == 1, wheels
+            packages += [str(x) for x in wheels]
+
+        stem = f'{project.name.replace(".", "_")}-0.1.0'
+        wheel = ROOT / project.path / f'dist/{stem}-py3-none-any.whl'
         assert wheel.exists()
+
         system = utils.System(cwd=tmpdir)
         system('uv venv')
-        system(f'uv pip install {wheel}')
-        code = f'import {name}; print({name}.foo())'
+        system(f'uv pip install {" ".join(packages)} --no-build-isolation')
+        code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run python -c "{code}"') == '42\n'
 
     @pytest.mark.parametrize('project', PROJECTS)
@@ -60,18 +94,19 @@ class TestInstall:
         sdist = list((REPO / 'dist').glob('*.whl'))[0]
         packages.append(str(sdist))
 
-        root, name = utils.find_project(project)
-        system = utils.System(cwd=root)
-        system('rm -rf .venv')
-        system('uv sync')
-        system('uv build')
-        stem = f'{name.replace(".", "_")}-0.1.0'
-        sdist = root / f'dist/{stem}.tar.gz'
-        assert sdist.exists()
-        packages.append(str(sdist))
+        for folder in [project.path, *(project.deps or [])]:
+            path = ROOT / folder
+            system = utils.System(cwd=path)
+            system('rm -rf .venv')
+            system('rm -rf dist')
+            system('uv sync')
+            system('uv build')
+            sdists = list((path / 'dist').glob('*.tar.gz'))
+            assert len(sdists) == 1, sdists
+            packages += [str(x) for x in sdists]
 
         system = utils.System(cwd=tmpdir)
         system('uv venv')
         system(f'uv pip install {" ".join(packages)} --no-build-isolation')
-        code = f'import {name}; print({name}.foo())'
+        code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run python -c "{code}"') == '42\n'
