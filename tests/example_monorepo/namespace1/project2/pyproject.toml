@@ -6,7 +6,7 @@ dependencies = ['namespace1.project1']
 
 [tool.uv.sources]
 tinybuild = { path = "../../../..", editable = true }
-namespace1-project1 = { path = "../project2", editable = true }
+namespace1-project1 = { path = "../project1", editable = true }
 
 [build-system]
 requires = ["tinybuild"]

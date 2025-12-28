@@ -6,7 +6,7 @@ from . import utils
 
 
 REPO = pathlib.Path(__file__).parent.parent
-ROOT = pathlib.Path(__file__).parent
+
 PROJECTS = [
     ('example_basic', 'project'),
     ('example_namespace', 'namespace1.namespace2.project'),

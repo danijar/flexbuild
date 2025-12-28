@@ -9,8 +9,8 @@ class System:
     def __init__(self, cwd='.', env=None):
         self.cwd = pathlib.Path(cwd).resolve()
         assert self.cwd.is_dir()
-        if env is not None:
-            env = {**os.environ, **env}
+        env = {**os.environ, **(env or {})}
+        env.pop('VIRTUAL_ENV', None)
         self.env = env
 
     def __call__(self, *command):

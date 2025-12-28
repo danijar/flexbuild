@@ -5,10 +5,7 @@ requires-python = ">=3.11"
 [[package]]
 name = "namespace1-project1"
 version = "0.1.0"
-source = { editable = "." }
-
-[package.metadata]
-requires-dist = [{ name = "namespace1-project1", editable = "." }]
+source = { editable = "../project1" }
 
 [[package]]
 name = "namespace1-project2"
@@ -19,4 +16,4 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "namespace1-project1", editable = "." }]
+requires-dist = [{ name = "namespace1-project1", editable = "../project1" }]
