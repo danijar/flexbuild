@@ -11,10 +11,10 @@ def build_sdist(sdist_directory, config_settings=None):
     outdir = pathlib.Path(sdist_directory).resolve()
     outfile = outdir / f'{proj.stem}.tar.gz'
     with tarfile.open(outfile, 'w:gz') as f:
-        for path in proj.src.rglob('*'):
+        for path in proj.root.rglob('*'):
             if path.is_dir():
                 continue
-            relative = path.relative_to(proj.src)
+            relative = path.relative_to(proj.root)
             if include.should_exclude(relative):
                 continue
             f.add(path, f'{proj.stem}/{relative}')

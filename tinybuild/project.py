@@ -21,6 +21,7 @@ class Project:
     """Holds project information and metadata."""
 
     def __init__(self, project_folder):
+        self._project_folder = pathlib.Path(project_folder)
         self._pyproject, self._module_folder = read_project(project_folder)
         self._metadata = create_metadata(self._pyproject)
 
@@ -38,6 +39,10 @@ class Project:
     @property
     def scope(self):
         return self._pyproject['project']['name'].replace('.', '/')
+
+    @property
+    def root(self):
+        return self._project_folder
 
     @property
     def src(self):

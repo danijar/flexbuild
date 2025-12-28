@@ -24,6 +24,11 @@ PROJECTS = [
         deps=[],
     ),
     Project(
+        name='project',
+        path='example_folder',
+        deps=[],
+    ),
+    Project(
         name='namespace1.namespace2.project',
         path='example_namespace',
         deps=[],
