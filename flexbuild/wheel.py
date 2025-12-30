@@ -45,7 +45,7 @@ class Wheel:
         self.add(f'{distinfo}/METADATA', self.meta)
         wheelinfo = [
             ('Wheel-Version', '1.0'),
-            ('Generator', 'tinybuild 0.1.0'),
+            ('Generator', 'flexbuild 0.1.0'),
             ('Root-Is-Purelib', 'true'),
             ('Tag', 'py3-none-any'),
         ]

@@ -5,9 +5,9 @@ requires-python = ">=3.11"
 dependencies = ['namespace1.project1']
 
 [tool.uv.sources]
-tinybuild = { path = "../../../..", editable = true }
+flexbuild = { path = "../../../..", editable = true }
 namespace1-project1 = { path = "../project1", editable = true }
 
 [build-system]
-requires = ["tinybuild"]
-build-backend = "tinybuild"
+requires = ["flexbuild"]
+build-backend = "flexbuild"

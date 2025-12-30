@@ -1,7 +1,7 @@
 import os
 import pathlib
 
-from tinybuild import helpers
+from flexbuild import helpers
 
 
 class System:

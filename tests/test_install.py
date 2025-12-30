@@ -60,7 +60,7 @@ class TestInstall:
         path = ROOT / project.path
         system = utils.System(cwd=path)
         system('rm -rf .venv')
-        system('uv sync --editable --refresh-package tinybuild')
+        system('uv sync --editable --refresh-package flexbuild')
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'
 
@@ -69,7 +69,7 @@ class TestInstall:
         path = ROOT / project.path
         system = utils.System(cwd=path)
         system('rm -rf .venv')
-        system('uv sync --no-editable --refresh-package tinybuild')
+        system('uv sync --no-editable --refresh-package flexbuild')
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'
 
@@ -81,7 +81,7 @@ class TestInstall:
             path = ROOT / folder
             system = utils.System(cwd=path)
             system('rm -rf dist')
-            system('uv build --refresh-package tinybuild')
+            system('uv build --refresh-package flexbuild')
             wheels = list((path / 'dist').glob('*.whl'))
             assert len(wheels) == 1, wheels
             packages += [str(x) for x in wheels]
@@ -112,6 +112,7 @@ class TestInstall:
         packages = []
 
         system = utils.System(cwd=REPO)
+        system('rm -rf dist')
         system('uv build')
         sdist = list((REPO / 'dist').glob('*.whl'))[0]
         backend = str(sdist)
@@ -120,7 +121,7 @@ class TestInstall:
             path = ROOT / folder
             system = utils.System(cwd=path)
             system('rm -rf dist')
-            system('uv build --refresh-package tinybuild')
+            system('uv build --refresh-package flexbuild')
             sdists = list((path / 'dist').glob('*.tar.gz'))
             assert len(sdists) == 1, sdists
             packages += [str(x) for x in sdists]
