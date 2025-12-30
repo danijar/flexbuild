@@ -5,9 +5,6 @@ import tomllib
 from . import helpers
 
 
-# TODO: Look for .gitignore for excludes
-# TODO: Look for pyproject.toml includes/excludes
-
 # TODO: Support entry points
 # TODO: Support dependency extras
 # TODO: Support metadata for pypi (description, readme, etc, python version)
@@ -16,13 +13,28 @@ from . import helpers
 # TODO: Support build profiles
 
 
+INCLUDE = [
+    '*.py',
+    'pyproject.toml',
+]
+
+EXCLUDE = [
+    'dist',
+    'build',
+    '__pycache__',
+    '.*',
+    '*/.*',
+    '*.pyc',
+]
+
+
 class Project:
     """Holds project information and metadata."""
 
     def __init__(self, project_folder):
         self._project_folder = pathlib.Path(project_folder)
-        self._pyproject, self._module_folder, self._root_folder = (
-            read_project(project_folder)
+        self._pyproject, self._module_folder, self._root_folder = read_project(
+            project_folder
         )
         self._metadata = create_metadata(self._pyproject)
 
@@ -56,6 +68,15 @@ class Project:
     @property
     def metadata(self):
         return self._metadata
+
+    @property
+    def include(self):
+        return self._pyproject['build-system'].get('include', INCLUDE)
+
+    @property
+    def exclude(self):
+        additional = self._pyproject['build-system'].get('exclude', [])
+        return EXCLUDE + additional
 
 
 def read_project(project_folder):

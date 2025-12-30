@@ -1,7 +1,7 @@
 import os
 import pathlib
-import shlex
-import subprocess
+
+from tinybuild import helpers
 
 
 class System:
@@ -13,26 +13,7 @@ class System:
         self.env = env
 
     def __call__(self, *command):
-        return run_command(' '.join(command), self.cwd, self.env)
-
-
-def run_command(command, cwd='.', env=None):
-    args = shlex.split(command)
-    result = subprocess.run(
-        args,
-        capture_output=True,
-        text=True,
-        cwd=cwd,
-        env=env,
-    )
-    if result.returncode != 0:
-        raise RuntimeError(
-            f'Command failed with return code {result.returncode}.\n'
-            f'--- COMMAND ---\n{command}\n'
-            f'--- STDERR ---\n{result.stderr}\n'
-            f'--- STDOUT ---\n{result.stdout}'
-        )
-    return result.stdout
+        return helpers.run_command(' '.join(command), self.cwd, self.env)
 
 
 def find_project(project):
