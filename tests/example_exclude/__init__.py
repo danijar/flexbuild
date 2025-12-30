@@ -12,6 +12,7 @@ def foo():
 
 def ensure_include():
     from . import include  # noqa
+
     content = (PROJECT / 'include.txt').read_text()
     assert content == '123\n'
 
@@ -19,6 +20,7 @@ def ensure_include():
 def ensure_exclude():
     try:
         from . import exclude  # noqa
+
         assert False
     except ImportError:
         pass

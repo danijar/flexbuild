@@ -6,10 +6,6 @@ import pytest
 from . import utils
 
 
-# TODO: Make sure uv commands in the tests always use the newest version of
-# tinybuild rather than something from the uv cache. How can we ensure that?
-
-
 REPO = pathlib.Path(__file__).parent.parent
 ROOT = pathlib.Path(__file__).parent
 
@@ -64,7 +60,7 @@ class TestInstall:
         path = ROOT / project.path
         system = utils.System(cwd=path)
         system('rm -rf .venv')
-        system('uv sync --editable')
+        system('uv sync --editable --refresh-package tinybuild')
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'
 
@@ -73,7 +69,7 @@ class TestInstall:
         path = ROOT / project.path
         system = utils.System(cwd=path)
         system('rm -rf .venv')
-        system('uv sync --no-editable')
+        system('uv sync --no-editable --refresh-package tinybuild')
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'
 
@@ -84,10 +80,8 @@ class TestInstall:
         for folder in [project.path, *(project.deps or [])]:
             path = ROOT / folder
             system = utils.System(cwd=path)
-            system('rm -rf .venv')
             system('rm -rf dist')
-            system('uv sync')
-            system('uv build')
+            system('uv build --refresh-package tinybuild')
             wheels = list((path / 'dist').glob('*.whl'))
             assert len(wheels) == 1, wheels
             packages += [str(x) for x in wheels]
@@ -103,7 +97,13 @@ class TestInstall:
             system(f'uv run -qq python -c "import {project.name}"')
         assert 'ModuleNotFoundError' in e.value.args[0]
 
-        system(f'uv pip install {" ".join(packages)} --no-build-isolation')
+        command = [
+            'uv pip install',
+            *packages,
+            '--no-build-isolation',
+            f'--refresh-package {project.name}',
+        ]
+        system(' '.join(command))
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'
 
@@ -114,15 +114,13 @@ class TestInstall:
         system = utils.System(cwd=REPO)
         system('uv build')
         sdist = list((REPO / 'dist').glob('*.whl'))[0]
-        packages.append(str(sdist))
+        backend = str(sdist)
 
         for folder in [project.path, *(project.deps or [])]:
             path = ROOT / folder
             system = utils.System(cwd=path)
-            system('rm -rf .venv')
             system('rm -rf dist')
-            system('uv sync')
-            system('uv build')
+            system('uv build --refresh-package tinybuild')
             sdists = list((path / 'dist').glob('*.tar.gz'))
             assert len(sdists) == 1, sdists
             packages += [str(x) for x in sdists]
@@ -134,6 +132,13 @@ class TestInstall:
             system(f'uv run -qq python -c "import {project.name}"')
         assert 'ModuleNotFoundError' in e.value.args[0]
 
-        system(f'uv pip install {" ".join(packages)} --no-build-isolation')
+        system(f'uv pip install {backend}')
+        command = [
+            'uv pip install',
+            *packages,
+            '--no-build-isolation',
+            f'--refresh-package {project.name}',
+        ]
+        system(' '.join(command))
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'

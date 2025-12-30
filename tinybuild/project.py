@@ -7,8 +7,7 @@ from . import helpers
 
 # TODO: Support entry points
 # TODO: Support dependency extras
-# TODO: Support metadata for pypi (description, readme, etc, python version)
-
+# TODO: Support metadata for pypi (description, readme, python version, etc)
 # TODO: Support build commands and including build artifacts into wheel
 # TODO: Support build profiles
 
