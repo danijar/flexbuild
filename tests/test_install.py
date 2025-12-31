@@ -75,31 +75,32 @@ class TestInstall:
 
     @pytest.mark.parametrize('project', PROJECTS)
     def test_build_wheel(self, tmpdir, project):
-        paths = [project.path, *(project.deps or [])]
-        packages = utils.build_packages(paths, ROOT, ext='whl')
-        stem = f'{project.name.replace(".", "_")}-0.1.0'
-        wheel = ROOT / project.path / f'dist/{stem}-py3-none-any.whl'
-        assert wheel.exists()
+        package = utils.build_package(ROOT / project.path)
+        links = [utils.build_package(ROOT / x).parent for x in project.deps]
+        assert package.exists()
+        name = f'{project.name.replace(".", "_")}-0.1.0-py3-none-any.whl'
+        assert package == ROOT / project.path / 'dist' / name
         system = utils.System(cwd=tmpdir)
         system('uv venv')
         with pytest.raises(RuntimeError) as e:
             system(f'uv run -qq python -c "import {project.name}"')
         assert 'ModuleNotFoundError' in e.value.args[0]
-        utils.install_packages(system, packages, refresh=project.name)
+        utils.install_package(system, package, links)
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'
 
     @pytest.mark.parametrize('project', PROJECTS)
     def test_build_sdist(self, tmpdir, project):
-        paths = [project.path, *(project.deps or [])]
-        backend = utils.build_packages([REPO], ext='whl')[0]
-        packages = utils.build_packages(paths, ROOT, ext='tar.gz')
+        package = utils.build_package(ROOT / project.path, 'sdist')
+        links = [utils.build_package(ROOT / x).parent for x in project.deps]
+        assert package.exists()
+        name = f'{project.name.replace(".", "_")}-0.1.0.tar.gz'
+        assert package == ROOT / project.path / 'dist' / name
         system = utils.System(cwd=tmpdir)
         system('uv venv')
         with pytest.raises(RuntimeError) as e:
             system(f'uv run -qq python -c "import {project.name}"')
         assert 'ModuleNotFoundError' in e.value.args[0]
-        system(f'uv pip install {backend}')
-        utils.install_packages(system, packages, refresh=project.name)
+        utils.install_package(system, package, links)
         code = f'import {project.name}; print({project.name}.foo())'
         assert system(f'uv run -qq python -c "{code}"') == '42\n'

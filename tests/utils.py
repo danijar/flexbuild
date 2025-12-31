@@ -16,32 +16,29 @@ class System:
         return helpers.run_command(' '.join(command), self.cwd, self.env)
 
 
-def find_project(project):
-    # return pathlib.Path(__file__).parent / project.replace('.', '/')
-    path, name = project
-    path = pathlib.Path(__file__).parent / path
-    return path, name
+def build_package(project_path, typ='wheel'):
+    system = System(cwd=project_path)
+    system('rm -rf dist')
+    system('uv build --refresh-package flexbuild')
+    return find_package(project_path, typ)
 
 
-def build_packages(project_paths, root=None, ext='whl'):
-    if root is not None:
-        project_paths = [root / x for x in project_paths]
-    packages = []
-    for path in project_paths:
-        system = System(cwd=path)
-        system('rm -rf dist')
-        system('uv build --refresh-package flexbuild')
-        package = list((path / 'dist').glob(f'*.{ext}'))
-        assert len(package) == 1, package
-        packages += [str(x) for x in package]
-    return packages
+def find_package(project_path, typ='wheel'):
+    ext = dict(wheel='whl', sdist='tar.gz')[typ]
+    packages = list((project_path / 'dist').glob(f'*.{ext}'))
+    assert len(packages) == 1, packages
+    return packages[0]
 
 
-def install_packages(system, package_paths, refresh):
+def install_package(system, package, links=None):
+    links = links or []
+    assert isinstance(links, list)
+    name = str(package).rsplit('/')[-1]
+    name = name.split('-', 0)[0]
+    name = name.split('[')[0]
     command = [
-        'uv pip install',
-        *package_paths,
-        '--no-build-isolation',
-        f'--refresh-package {refresh}',
+        f'uv pip install {package}',
+        *[f'--find-links {x}' for x in links],
+        f'--refresh-package {name}',
     ]
     system(' '.join(command))

@@ -23,19 +23,17 @@ class TestEntrypoints:
         assert system('uv run -qq entrypoint_foo') == '42\n'
 
     def test_build_wheel(self, tmpdir):
-        project = 'example_entrypoints'
-        packages = utils.build_packages([project], ROOT, ext='whl')
+        package = utils.build_package(ROOT / 'example_entrypoints')
         system = utils.System(cwd=tmpdir)
         system('uv venv')
-        utils.install_packages(system, packages, refresh=project)
+        utils.install_package(system, package)
         assert system('uv run -qq entrypoint_foo') == '42\n'
 
     def test_build_sdist(self, tmpdir):
-        project = 'example_entrypoints'
-        backend = utils.build_packages([REPO], ext='whl')[0]
-        packages = utils.build_packages([project], ROOT, ext='whl')
+        backend = utils.build_package(REPO)
+        package = utils.build_package(ROOT / 'example_entrypoints')
         system = utils.System(cwd=tmpdir)
         system('uv venv')
         system(f'uv pip install {backend}')
-        utils.install_packages(system, packages, refresh=project)
+        utils.install_package(system, package)
         assert system('uv run -qq entrypoint_foo') == '42\n'
