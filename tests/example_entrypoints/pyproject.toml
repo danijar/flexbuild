@@ -1,0 +1,15 @@
+[project]
+name = "project"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+entrypoint_foo = 'project.entrypoint:foo'
+
+[tool.uv.sources]
+flexbuild = { path = "../..", editable = true }
+
+[build-system]
+requires = ["flexbuild"]
+build-backend = "flexbuild"

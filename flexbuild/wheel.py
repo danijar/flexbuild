@@ -11,9 +11,8 @@ class Wheel:
 
     def __init__(self, outdir, project):
         outdir = pathlib.Path(outdir).resolve()
-        self.stem = project.stem
-        self.meta = project.metadata
-        self.path = outdir / f'{self.stem}-py3-none-any.whl'
+        self.project = project
+        self.path = outdir / f'{project.stem}-py3-none-any.whl'
         self.records = []
         self.f = None
 
@@ -41,15 +40,18 @@ class Wheel:
         self.f.writestr(name, content)
 
     def _finish(self):
-        distinfo = f'{self.stem}.dist-info'
-        self.add(f'{distinfo}/METADATA', self.meta)
+        distinfo = f'{self.project.stem}.dist-info'
+        self.add(f'{distinfo}/METADATA', self.project.metadata)
+        if self.project.entrypoints:
+            self.add(f'{distinfo}/entry_points.txt', self.project.entrypoints)
         wheelinfo = [
             ('Wheel-Version', '1.0'),
             ('Generator', 'flexbuild 0.1.0'),
             ('Root-Is-Purelib', 'true'),
             ('Tag', 'py3-none-any'),
         ]
-        self.add(f'{distinfo}/WHEEL', helpers.format_key_value(wheelinfo))
+        wheelinfo = helpers.format_key_value(wheelinfo, sep=': ')
+        self.add(f'{distinfo}/WHEEL', wheelinfo.encode('utf-8'))
         self.records.append('RECORD,,\n')
         self.f.writestr(f'{distinfo}/RECORD', ''.join(self.records))
 

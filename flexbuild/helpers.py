@@ -6,10 +6,8 @@ import shlex
 import subprocess
 
 
-def format_key_value(data):
-    content = ''.join(f'{k}: {v}\n' for k, v in data)
-    content = content.encode('utf-8')
-    return content
+def format_key_value(data, sep):
+    return ''.join(f'{k}{sep}{v}\n' for k, v in data)
 
 
 def merge_dicts(first, second):

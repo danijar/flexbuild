@@ -5,7 +5,6 @@ import tomllib
 from . import helpers
 
 
-# TODO: Support entry points
 # TODO: Support dependency extras
 # TODO: Support metadata for pypi (description, readme, python version, etc)
 # TODO: Support build commands and including build artifacts into wheel
@@ -36,6 +35,7 @@ class Project:
             project_folder
         )
         self._metadata = create_metadata(self._pyproject)
+        self._entrypoints = create_entrypoints(self._pyproject)
 
     @property
     def stem(self):
@@ -67,6 +67,10 @@ class Project:
     @property
     def metadata(self):
         return self._metadata
+
+    @property
+    def entrypoints(self):
+        return self._entrypoints
 
     @property
     def include(self):
@@ -121,14 +125,27 @@ def create_metadata(pyproject):
     name = pyproject['project']['name']
     version = pyproject['project'].get('version', '0.0.0')
     deps = pyproject['project'].get('dependencies', [])
-    metadata = [
+    data = [
         ('Metadata-Version', '2.1'),
         ('Name', name),
         ('Version', version),
         *[('Requires-Dist', x) for x in deps],
     ]
-    metadata = helpers.format_key_value(metadata)
-    return metadata
+    data = helpers.format_key_value(data, sep=': ').encode('utf-8')
+    return data
+
+
+def create_entrypoints(pyproject):
+    sections = []
+    if scripts := pyproject['project'].get('scripts', {}):
+        entries = helpers.format_key_value(scripts.items(), sep=' = ')
+        sections.append(f'[console_scripts]\n{entries}')
+    if scripts := pyproject['project'].get('gui-scripts', {}):
+        entries = helpers.format_key_value(scripts.items(), sep=' = ')
+        sections.append(f'[gui_scripts]\n{entries}')
+    if not sections:
+        return None
+    return '\n'.join(sections).encode('utf-8')
 
 
 def find_root(folder):
