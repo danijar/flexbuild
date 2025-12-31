@@ -1,1 +1,1 @@
-from .code import foo
+from .code import foo  # noqa

@@ -5,7 +5,6 @@ import tomllib
 from . import helpers
 
 
-# TODO: Support dependency extras
 # TODO: Support metadata for pypi (description, readme, python version, etc)
 # TODO: Support build commands and including build artifacts into wheel
 # TODO: Support build profiles
@@ -125,11 +124,18 @@ def create_metadata(pyproject):
     name = pyproject['project']['name']
     version = pyproject['project'].get('version', '0.0.0')
     deps = pyproject['project'].get('dependencies', [])
+    extras = pyproject['project'].get('optional-dependencies', {})
     data = [
         ('Metadata-Version', '2.1'),
         ('Name', name),
         ('Version', version),
         *[('Requires-Dist', x) for x in deps],
+        *[('Provides-Extra', extra) for extra in extras],
+        *[
+            ('Requires-Dist', f'{dep}; extra == "{extra}"')
+            for extra, extra_deps in extras.items()
+            for dep in extra_deps
+        ],
     ]
     data = helpers.format_key_value(data, sep=': ').encode('utf-8')
     return data
