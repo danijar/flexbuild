@@ -87,6 +87,10 @@ package names containing dots in `pyproject.toml`. Most Python build backends
 would require duplicating the nested folder structure **inside** of each
 package, which is unwieldy.
 
+Consider using the above layout together with [uv path dependencies][path].
+
+[path]: https://docs.astral.sh/uv/concepts/projects/dependencies/#path
+
 ## Questions
 
 Please open a separate [GitHub issue](https://github.com/danijar/flexbuild/issues)
