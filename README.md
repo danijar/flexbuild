@@ -2,7 +2,7 @@
 
 # 🧱 Flexbuild
 
-Flexible Python build backend for large code bases.
+Simple Python build backend for large codebases.
 
 Add to your `pyproject.toml`:
 
