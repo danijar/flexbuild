@@ -7,7 +7,6 @@ ROOT = pathlib.Path(__file__).parent
 
 
 class TestExtras:
-
     def test_with_extra(self, tmpdir):
         project = 'example_extras'
         dependency = 'example_extras/dependency'

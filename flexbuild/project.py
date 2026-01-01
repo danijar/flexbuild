@@ -5,14 +5,11 @@ import tomllib
 from . import helpers
 
 
-# TODO: Support metadata for pypi (description, readme, python version, etc)
-# TODO: Support build commands and including build artifacts into wheel
-# TODO: Support build profiles
-
-
 INCLUDE = [
     '*.py',
     'pyproject.toml',
+    'README.md',
+    'README.rst',
 ]
 
 EXCLUDE = [
@@ -33,7 +30,7 @@ class Project:
         self._pyproject, self._module_folder, self._root_folder = read_project(
             project_folder
         )
-        self._metadata = create_metadata(self._pyproject)
+        self._metadata = create_metadata(self._pyproject, self._project_folder)
         self._entrypoints = create_entrypoints(self._pyproject)
 
     @property
@@ -120,27 +117,6 @@ def validate_name(name, module_folder, root_folder):
             )
 
 
-def create_metadata(pyproject):
-    name = pyproject['project']['name']
-    version = pyproject['project'].get('version', '0.0.0')
-    deps = pyproject['project'].get('dependencies', [])
-    extras = pyproject['project'].get('optional-dependencies', {})
-    data = [
-        ('Metadata-Version', '2.1'),
-        ('Name', name),
-        ('Version', version),
-        *[('Requires-Dist', x) for x in deps],
-        *[('Provides-Extra', extra) for extra in extras],
-        *[
-            ('Requires-Dist', f'{dep}; extra == "{extra}"')
-            for extra, extra_deps in extras.items()
-            for dep in extra_deps
-        ],
-    ]
-    data = helpers.format_key_value(data, sep=': ').encode('utf-8')
-    return data
-
-
 def create_entrypoints(pyproject):
     sections = []
     if scripts := pyproject['project'].get('scripts', {}):
@@ -162,3 +138,71 @@ def find_root(folder):
             break
         folder = folder.parent
     return None
+
+
+def create_metadata(pyproject, project_folder):
+    proj = pyproject['project']
+    entries = [
+        ('Metadata-Version', '2.1'),
+        ('Name', proj['name']),
+        ('Version', proj.get('version', '0.0.0')),
+    ]
+
+    if x := proj.get('description'):
+        entries.append(('Summary', x))
+    if x := proj.get('requires-python'):
+        entries.append(('Requires-Python', x))
+    if x := proj.get('license'):
+        if isinstance(x, str):
+            entries.append(('License-Expression', x))
+        else:
+            entries.append(('License', x['text']))
+    for x in proj.get('keywords', []):
+        entries.append(('Keyword', x))
+    for x in proj.get('classifiers', []):
+        entries.append(('Classifier', x))
+    for label, url in proj.get('urls', {}).items():
+        entries.append(('Project-URL', f'{label}, {url}'))
+    entries += format_people('Author', proj.get('authors', []))
+    entries += format_people('Maintainer', proj.get('maintainers', []))
+
+    for x in proj.get('dependencies', []):
+        entries.append(('Requires-Dist', x))
+    for extra, deps in proj.get('optional-dependencies', {}).items():
+        entries.append(('Provides-Extra', extra))
+        for dep in deps:
+            entries.append(('Requires-Dist', f'{dep}; extra == "{extra}"'))
+
+    if x := proj.get('readme'):
+        extension = x.rsplit('.', 1)[1].lower()
+        content_type = dict(
+            md='text/markdown',
+            rst='text/x-rst',
+        ).get(extension, 'text/plain')
+        entries.append(('Description-Content-Type', content_type))
+
+    result = helpers.format_key_value(entries, sep=': ')
+
+    if x := proj.get('readme'):
+        result += '\n' + (project_folder / x).read_text()
+
+    return result.encode('utf-8')
+
+
+def format_people(field, people):
+    names, emails = [], []
+    for person in people:
+        if 'name' in person and 'email' in person:
+            emails.append(f'"{person["name"]}" <{person["email"]}>')
+        elif 'name' in person:
+            names.append(person['name'])
+        elif 'email' in person:
+            emails.append(person['email'])
+        else:
+            raise ValueError('Person needs name or email or both')
+    entries = []
+    if names:
+        entries.append((field, ', '.join(names)))
+    if emails:
+        entries.append((f'{field}-email', ', '.join(emails)))
+    return entries

@@ -30,6 +30,11 @@ PROJECTS = [
     ),
     Project(
         name='project',
+        path='example_metadata',
+        deps=[],
+    ),
+    Project(
+        name='project',
         path='example_folder',
         deps=[],
     ),
