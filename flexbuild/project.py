@@ -109,7 +109,8 @@ def validate_name(name, module_folder, root_folder):
         raise ValueError(f'Invalid chars in project name: {name}')
 
     if root_folder:
-        scope = str(module_folder.relative_to(root_folder)).replace('/', '.')
+        relative = module_folder.relative_to(root_folder.parent)
+        scope = str(relative).replace('/', '.')
         if scope != name:
             raise ValueError(
                 f'When using pyroot.toml, the module name ({name}) must match '
