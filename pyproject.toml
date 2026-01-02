@@ -1,7 +1,18 @@
 [project]
 name = "flexbuild"
-version = "0.2.1"
+version = "0.2.2"
 requires-python = ">=3.11"
+description = "Simple Python build backend for large codebases"
+readme="README.md"
+license="MIT"
+authors = [{name = "Danijar Hafner", email = "mail@danijar.com"}]
+maintainers = [{name = "Danijar Hafner", email = "mail@danijar.com"}]
+urls = {Homepage = "https://github.com/danijar/flexbuild"}
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: System :: Archiving :: Packaging",
+]
 dependencies = []
 
 [build-system]
